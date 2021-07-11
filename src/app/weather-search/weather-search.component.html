@@ -1,0 +1,105 @@
+<div class="container">
+  <div class="search-form">
+    <form class="example-form">
+      <mat-form-field class="example-full-width">
+        <mat-label>City</mat-label>
+        <input
+          #citySearch
+          type="text"
+          matInput
+          [formControl]="cityFormControl"
+          placeholder=""
+          autocomplete="off"
+        />
+        <mat-error
+          *ngIf="
+            cityFormControl.hasError('pattern') &&
+            !cityFormControl.hasError('required')
+          "
+        >
+          Please enter a valid city name
+        </mat-error>
+        <mat-error *ngIf="cityFormControl.hasError('required')">
+          City is required
+        </mat-error>
+      </mat-form-field>
+      <button
+        mat-stroked-button
+        disabled
+        class="search-btn"
+        *ngIf="
+          cityFormControl.hasError('pattern') ||
+            cityFormControl.hasError('required') ||
+            citySearch.value === '';
+          else activeBtn
+        "
+      >
+        Get weather
+      </button>
+      <ng-template #activeBtn
+        ><button
+          class="search-btn"
+          mat-stroked-button
+          enabled
+          color="primary"
+          (click)="
+            clear();
+            getCityToSearch(citySearch.value);
+            showWeather();
+            citySearch.value = ''
+          "
+        >
+          Get weather
+        </button></ng-template
+      >
+    </form>
+    <br />
+  </div>
+  <br />
+
+  <div *ngIf="weather != null && weather.success === true; else error">
+    <mat-card>
+      <div class="card-body">
+        <mat-card-header>
+          <img
+            mat-card-avatar
+            class="img"
+            src="http://openweathermap.org/img/wn/{{ weather.iconId }}@2x.png"
+          />
+
+          <mat-card-title>
+            {{ weather.city.toUpperCase() }}
+            <span class="country">({{ weather.country }}) </span>
+          </mat-card-title>
+
+          <mat-card-subtitle class="card-subtitle mb-2 text-muted">
+            {{
+              weather.clouds.toUpperCase().charAt(0) +
+                weather.clouds.substring(1, weather.clouds.length)
+            }}, feels like {{ weather.feelsLike + "\u00B0" }}
+          </mat-card-subtitle>
+        </mat-card-header>
+        <mat-divider [inset]="true"></mat-divider>
+        <div class="values">
+          <p>Wind: {{ weather.windSpeed + "m/s" }}</p>
+          <p>Humidity: {{ weather.humidity + "%" }}</p>
+        </div>
+        <h1 class="temp">
+          <span>{{ weather.temp }}</span
+          ><span class="celisus">{{ "\u00B0" }}</span>
+        </h1>
+        <div class="card-footer"><span>Date</span><span>Time</span></div>
+      </div>
+      <br />
+    </mat-card>
+  </div>
+
+  <ng-template #error>
+    <mat-card
+      class="error"
+      *ngIf="weather != null && weather.success === false"
+    >
+      No city named '{{ cityToSearch }}' found
+    </mat-card>
+  </ng-template>
+</div>
